@@ -12,17 +12,32 @@ private:
    int *mat;
    int *shape;
    int *multiplier;
-   int *ind_order;
+   int *print_ind_ord;
    int shape_length;
 
 public:
-   Matrix(int *s, int initial_value=0);
+   // Constructor/Destructor
+   Matrix(int *s, int sl, int initial_value=0);
    ~Matrix(void);
 
+   // Input/Output functions
    void print();
 
-   int dimensions() { return shape_length; }
-   int get_shape(int dimension) { return shape[dimension];}
+   // Retrival Functions
+   int get_dimensions() { return shape_length; }
+   int get_shape(int dimension) { return shape[dimension]; }
+   int get_num_dimensions() { return shape_length; }
+   int* get_multiplier() { return multiplier; }
+   int get_val(int index) { return mat[index]; }
+
+   // Setting functions
+   void set_value(int* loc, int value);
+   void set_value(int ind, int value);
+
+
+   // Overloading Operators
+   Matrix operator+ (Matrix &mat);
+
 };
 
 

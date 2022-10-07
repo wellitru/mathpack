@@ -2,13 +2,13 @@
 #include<iostream>
 
 // Matrix constructer
-Matrix::Matrix(int *s, int initial_value)
+Matrix::Matrix(int *s, int sl, int initial_value)
 {
    // getting the length out of the shape array, and saving the shape array
-   shape_length = sizeof(s)/sizeof(s[0]);
+   shape_length = sl;
    shape = new int[shape_length];
    multiplier = new int[shape_length];
-   ind_order = new int[shape_length];
+   print_ind_ord = new int[shape_length];
    for(int i = 0; i < shape_length; i++)
    {
       // Multiplier initialization
@@ -27,19 +27,19 @@ Matrix::Matrix(int *s, int initial_value)
       // index order initialization
       if(shape_length == 1)
       {
-         ind_order[0] = 0;
+         print_ind_ord[0] = 0;
       }
       else
       {
          // We swap the order so that we can print in and have it look normal
          if(i==0)
          {
-            ind_order[0] = 1;
-            ind_order[1] = 0;
+            print_ind_ord[0] = 1;
+            print_ind_ord[1] = 0;
          }
          else if(i>1)
          {
-            ind_order[i] = i;
+            print_ind_ord[i] = i;
          }
       }
    }
@@ -58,8 +58,12 @@ Matrix::~Matrix()
    delete [] mat;
    delete [] shape;
    delete [] multiplier;
-   delete [] ind_order;
+   delete [] print_ind_ord;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Input/Output Functions
+///////////////////////////////////////////////////////////////////////////////
 
 int get_index(int* loc, int shape_length, int* multiplier)
 {
@@ -107,7 +111,6 @@ void print_opening_closing_braces(int num_wrapped, int shape_length)
 // Prints the array
 void Matrix::print()
 {
-
    // first we get counters so that we print the dimensions correctly
    //int* counters = NULL;
    int counters[shape_length];
@@ -135,12 +138,12 @@ void Matrix::print()
       for(int j=0; j<shape_length; j++)
       {
          // increment the counter in the current index
-         counters[ind_order[j]]++;
+         counters[print_ind_ord[j]]++;
          // if the counter has wrapped around we set it to zero and increment
          // the next counter in the ordering.
-         if(counters[ind_order[j]]>=shape[ind_order[j]])
+         if(counters[print_ind_ord[j]]>=shape[print_ind_ord[j]])
          {
-            counters[ind_order[j]] = 0;
+            counters[print_ind_ord[j]] = 0;
             wrapped++;
          }
          else
@@ -153,3 +156,83 @@ void Matrix::print()
 
    return;
 }
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Setting Functions
+///////////////////////////////////////////////////////////////////////////////
+// Setting a value in the matrix based on matrix/array style indexing
+void Matrix::set_value(int* loc, int value)
+{
+   mat[get_index(loc,shape_length,multiplier)] = value;
+
+   return;
+}
+
+// Setting a value in the matrix based on the integer single digit location
+void Matrix::set_value(int ind, int value)
+{
+   mat[ind] = value;
+
+   return;
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Overloaded Operators
+///////////////////////////////////////////////////////////////////////////////
+int max(int first, int second)
+{
+   if(first >= second)
+   {
+      return first;
+   }
+   else
+   {
+      return second;
+   }
+}
+
+Matrix Matrix::operator+(Matrix &mat1)
+{
+   // // Checking that the shapes match
+   // if(shape_length != mat.get_num_dimensions())
+   // {
+   //    RAISE_ERROR("ERROR: The matrices do not have same number of dimensions.")
+   //    // At some point we will include array broadcasting and this will change
+   // }
+   // // Checking that each dimension is the same size
+   // for(int i = 0; i<shape_length; i++)
+   // {
+   //    if (shape[i] != mat.get_shape(i))
+   //    {
+   //       RAISE_ERROR("ERROR: The matrices need to match in each dimension.")
+   //    }
+   // }
+
+   // Creating the result matrix that we will return
+   int ret_dim = max(shape_length, mat1.get_num_dimensions());
+   int ret_shape[ret_dim];
+   int init_val = 0;
+   for(int i = 0; i < ret_dim; i++)
+   {
+      ret_shape[i] = shape[i];
+   }
+   Matrix result(ret_shape, ret_dim, init_val);
+
+   // Summing element by element
+   for(int i=0; i<multiplier[shape_length-1]*shape[shape_length-1]; i++)
+   {
+      result.set_value(i, mat1.get_val(i)+mat[i]);
+   }
+
+   return result;
+}
+
+
+
+
+
